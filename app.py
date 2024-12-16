@@ -2,7 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # Title
-st.title("Advanced Interactive Calendar")
+st.title("Enhanced Interactive Calendar")
 
 # Updated FullCalendar Integration
 html_code = """
@@ -19,28 +19,53 @@ html_code = """
         border: 1px solid #ddd;
         border-radius: 5px;
       }
+      #reset-button {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #reset-button:hover {
+        background-color: #0056b3;
+      }
     </style>
   </head>
   <body>
     <div id="calendar"></div>
+    <button id="reset-button" onclick="resetCalendar()">Reset Calendar</button>
+
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         var calendarEl = document.getElementById("calendar");
 
-        var selectedDates = []; // Array to track selected dates
+        var selectedDates = []; // Array to store selected date ranges
 
-        function isSelected(date) {
-          // Check if a date is in the selectedDates array
-          return selectedDates.some(d => d.start === date.start && d.end === date.end);
+        function isDateInRange(date, start, end) {
+          const d = new Date(date);
+          return d >= new Date(start) && d < new Date(end);
         }
 
-        function toggleSelection(date) {
-          // Add or remove a date from the selectedDates array
-          const index = selectedDates.findIndex(d => d.start === date.start && d.end === date.end);
-          if (index > -1) {
-            selectedDates.splice(index, 1); // Unselect
+        function toggleSelection(start, end) {
+          const existing = selectedDates.findIndex(event => 
+            isDateInRange(event.start, start, end) && isDateInRange(start, event.start, event.end)
+          );
+          if (existing > -1) {
+            // Remove existing selection
+            selectedDates.splice(existing, 1);
           } else {
-            selectedDates.push(date); // Select
+            // Add new selection
+            selectedDates.push({
+              title: "Selected",
+              start: start,
+              end: end,
+              allDay: true,
+              color: "#ff0000"
+            });
           }
         }
 
@@ -51,20 +76,13 @@ html_code = """
           selectOverlap: false,
           events: selectedDates, // Display selected dates as events
           select: function (info) {
-            const newEvent = {
-              title: "Selected",
-              start: info.startStr,
-              end: info.endStr,
-              allDay: true,
-              color: "#ff0000"
-            };
-            toggleSelection(newEvent);
+            toggleSelection(info.startStr, info.endStr);
             calendar.removeAllEvents();
             calendar.addEventSource(selectedDates);
           },
         });
 
-        // Function to reset the calendar
+        // Reset the calendar
         window.resetCalendar = function () {
           selectedDates = [];
           calendar.removeAllEvents();
@@ -73,8 +91,6 @@ html_code = """
         calendar.render();
       });
     </script>
-
-    <button onclick="resetCalendar()">Reset Calendar</button>
   </body>
 </html>
 """
