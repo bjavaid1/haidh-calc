@@ -2,22 +2,17 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 # Title
-st.title("Basic Calendar Integration Test")
+st.title("Updated Calendar Integration")
 
-# Minimal Calendar HTML
+# Updated FullCalendar Integration
 html_code = """
 <!DOCTYPE html>
 <html>
   <head>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/main.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.15/index.global.min.js"></script>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 20px;
-      }
       #calendar {
         max-width: 900px;
         margin: 0 auto;
@@ -36,6 +31,11 @@ html_code = """
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: "dayGridMonth",
           selectable: true,
+          headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
+          },
           select: function (info) {
             alert("Selected: " + info.startStr + " to " + info.endStr);
           },
@@ -48,5 +48,5 @@ html_code = """
 </html>
 """
 
-# Embed Calendar
+# Embed the calendar in Streamlit app
 components.html(html_code, height=600)
