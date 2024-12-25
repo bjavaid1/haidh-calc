@@ -1,0 +1,2 @@
+streamlit>=1.18.0    # Ensures you have a version compatible with your app
+st-iframe-postmessage>=0.1.0   # Include the iframe messaging module
