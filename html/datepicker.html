@@ -57,11 +57,11 @@
 
             if (start && end) {
                 const range = `${start} - ${end}`;
-                console.log("Sending range to parent:", range); // Debug log in browser console
+                console.log("Sending range to parent:", range); // Debug log
                 window.parent.postMessage(range, "*");
             } else {
                 alert("Please enter both start and end datetimes.");
-                console.log("Incomplete input detected."); // Debug log for incomplete input
+                console.error("Incomplete input detected."); // Debug log for incomplete input
             }
         }
     </script>
