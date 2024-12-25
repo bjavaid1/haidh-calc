@@ -1,13 +1,7 @@
 import streamlit as st
-import streamlit.components.v1 as components
-import pandas as pd
-import logging
+from st_iframe_postmessage import st_iframe_postmessage
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(message)s")
-logger = logging.getLogger(__name__)
-
-st.title("Datetime Range Entry with Logging")
+st.title("Datetime Range Picker with Communication")
 
 # Placeholder for storing datetime ranges
 if "datetime_ranges" not in st.session_state:
@@ -16,56 +10,28 @@ if "datetime_ranges" not in st.session_state:
 # Display current ranges in a table
 st.write("### Selected Datetime Ranges")
 if st.session_state["datetime_ranges"]:
-    df = pd.DataFrame(st.session_state["datetime_ranges"], columns=["Start Datetime", "End Datetime"])
-    st.table(df)
+    st.table(st.session_state["datetime_ranges"])
 else:
     st.write("No ranges added yet. Click 'Add Range' to add.")
 
-# Add Range button to trigger manual datetime entry form
-if st.button("Add Range"):
-    logger.debug("Add Range button clicked. Displaying form...")
-    components.html(
-        open("html/datepicker.html").read(),
-        height=300,
-    )
-
-# Function to add a new range to the table
-def add_new_range(range_value):
-    logger.debug(f"Received range from HTML: {range_value}")
-    try:
-        start, end = range_value.split(" - ")
-        st.session_state["datetime_ranges"].append({"Start Datetime": start, "End Datetime": end})
-        logger.info(f"Added range: {start} - {end}")
-    except ValueError:
-        st.error("Invalid format. Please enter both start and end datetimes.")
-        logger.error("Invalid datetime range format received.")
-
-# JavaScript listener to capture messages from the HTML
-components.html(
-    """
-    <script>
-        const streamlitParent = window.parent;
-        window.addEventListener("message", (event) => {
-            if (event.data) {
-                console.log("Message received from HTML:", event.data); // Debug log in browser console
-                streamlitParent.postMessage(event.data, "*");
-            }
-        });
-    </script>
-    """,
-    height=0,
+# Embed iframe with the datepicker.html file
+st.write("### Add a New Datetime Range")
+st_iframe_postmessage(
+    src="html/datepicker.html",  # Path to your HTML file
+    height=300,  # Adjust height as needed
+    message=None,  # Initialize with no messages
 )
 
-# Process received messages
-if "last_range" not in st.session_state:
-    st.session_state["last_range"] = None
+# Listen for messages from the iframe
+message = st_iframe_postmessage()
 
-# Capture messages sent to Streamlit
-message = st.query_params.get("message", None)
-
-if message and message[0]:
-    st.write(f"Debug: Message received - {message[0]}")
-    add_new_range(message[0])
-else:
-    st.write("Debug: No message received yet.")
-
+# Process and display the received message
+if message:
+    st.write(f"Message received from iframe: {message}")
+    try:
+        # Assuming message is in "start - end" format
+        start, end = message.split(" - ")
+        st.session_state["datetime_ranges"].append({"Start Datetime": start, "End Datetime": end})
+        st.success("Datetime range added successfully!")
+    except ValueError:
+        st.error("Invalid datetime range format. Please check your input.")
