@@ -61,8 +61,11 @@ if "last_range" not in st.session_state:
     st.session_state["last_range"] = None
 
 # Capture messages sent to Streamlit
-message = st.experimental_get_query_params().get("message", None)
+message = st.query_params.get("message", None)
 
 if message and message[0]:
-    logger.debug(f"Message received in Streamlit: {message[0]}")
+    st.write(f"Debug: Message received - {message[0]}")
     add_new_range(message[0])
+else:
+    st.write("Debug: No message received yet.")
+
